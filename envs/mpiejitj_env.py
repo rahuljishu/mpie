@@ -37,6 +37,8 @@ class MPIEIITJEnv(gym.Env):
 
         self.df   = df_num
         self.cols = list(df_num.columns)
+        if not self.cols:
+            raise ValueError("No numeric columns found after cleaning the dataset")
 
         # 2️⃣  fixed transform list (5 actions)
         self.transforms = ["pca", "dct", "wavelet", "fft", "polyfit"]
