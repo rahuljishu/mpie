@@ -1,5 +1,6 @@
 # utils/cleaner.py
 import re
+import warnings
 import numpy as np
 import pandas as pd
 
@@ -26,9 +27,13 @@ def _coerce_date_series(s: pd.Series, threshold: float = 0.8) -> pd.Series:
     if s.dtype != object:
         return s
 
-    # vectorized parses:
-    mdy = pd.to_datetime(s, errors="coerce", dayfirst=False)
-    dmy = pd.to_datetime(s, errors="coerce", dayfirst=True)
+    # vectorized parses – silence pandas warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        mdy = pd.to_datetime(s, errors="coerce", dayfirst=False,
+                             infer_datetime_format=True)
+        dmy = pd.to_datetime(s, errors="coerce", dayfirst=True,
+                             infer_datetime_format=True)
     r1, r2 = mdy.notna().mean(), dmy.notna().mean()
 
     if max(r1, r2) >= threshold:
